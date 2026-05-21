@@ -1,7 +1,23 @@
 import React from 'react'
-// import { TrandingCard } from '.'
-import { FiCheck, FiFacebook, FiX } from 'react-icons/fi'
-import { TrandingCard } from '../pages/help-knowledgebase'
+import { FiArrowRight, FiCheck, FiFileText, FiX } from 'react-icons/fi'
+
+const TrandingCard = ({ title }) => {
+    return (
+        <div className="card border rounded-3 mb-3 overflow-hidden">
+            <div className="d-flex align-items-center justify-content-between">
+                <div className="d-flex align-items-center">
+                    <div className="wd-50 ht-50 bg-gray-100 me-3 d-flex align-items-center justify-content-center">
+                        <FiFileText size={16} />
+                    </div>
+                    <a href="#" className="text-truncate-1-line" data-bs-toggle="offcanvas" data-bs-target="#topicsDetailsOffcanvas">{title}</a>
+                </div>
+                <a href="#" className="avatar-text avatar-sm me-3" data-bs-toggle="offcanvas" data-bs-target="#topicsDetailsOffcanvas">
+                    <FiArrowRight />
+                </a>
+            </div>
+        </div>
+    );
+}
 
 const SupportDetails = () => {
     return (

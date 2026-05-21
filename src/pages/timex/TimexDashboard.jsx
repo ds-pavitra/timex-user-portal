@@ -1,4 +1,5 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 import { FiHeart, FiActivity, FiMoon, FiZap, FiDroplet } from 'react-icons/fi'
 import TimexMetricCard from '@/components/timex/TimexMetricCard'
 import TimexSleepCard from '@/components/timex/TimexSleepCard'
@@ -32,6 +33,60 @@ const StressGradientBar = () => (
     </div>
 )
 
+const BloodOxygenBar = ({ value = 98 }) => {
+    const pct = Math.min(100, Math.max(0, ((value - 80) / 20) * 100))
+    return (
+        <div className="mt-2" style={{ paddingTop: 18 }}>
+            <div style={{ position: 'relative', width: '100%' }}>
+                <div style={{ position: 'absolute', left: `${pct}%`, bottom: '100%', transform: 'translateX(-50%)', textAlign: 'center', whiteSpace: 'nowrap', marginBottom: 2 }}>
+                    <span className="fs-10 fw-bold">{value}%</span>
+                </div>
+                <div style={{ width: '100%', height: 8, borderRadius: 4, background: 'linear-gradient(90deg,#d13b4c 0%,#e49e3d 42%,#25b865 100%)', position: 'relative' }}>
+                    <div style={{ position: 'absolute', left: `${pct}%`, top: -3, transform: 'translateX(-50%)', width: 2, height: 14, background: '#283c50', borderRadius: 1 }} />
+                </div>
+            </div>
+            <div className="d-flex justify-content-between fs-10 text-muted mt-1">
+                <span>&lt;85%</span><span>90%</span><span>95%</span><span>100%</span>
+            </div>
+        </div>
+    )
+}
+
+const BloodPressureBar = ({ value = '121/79' }) => {
+    const systolic = parseInt(value.split('/')[0]) || 120
+    const pct = Math.min(100, Math.max(0, ((systolic - 90) / 50) * 100))
+    return (
+        <div className="mt-2" style={{ paddingTop: 18 }}>
+            <div style={{ position: 'relative', width: '100%' }}>
+                <span style={{ position: 'absolute', left: 0, bottom: '100%', fontSize: 10, fontWeight: 600, color: '#02a0e4', marginBottom: 2 }}>Low</span>
+                <span style={{ position: 'absolute', right: 0, bottom: '100%', fontSize: 10, fontWeight: 600, color: '#d13b4c', marginBottom: 2 }}>High</span>
+                <div style={{ position: 'absolute', left: `${pct}%`, bottom: '100%', transform: 'translateX(-50%)', textAlign: 'center', whiteSpace: 'nowrap', marginBottom: 2 }}>
+                    <span className="fs-10 fw-bold">{value}</span>
+                </div>
+                <div style={{ width: '100%', height: 8, borderRadius: 4, background: 'linear-gradient(90deg,#02a0e4 0%,#25b865 35%,#e49e3d 65%,#d13b4c 100%)', position: 'relative' }}>
+                    <div style={{ position: 'absolute', left: `${pct}%`, top: -3, transform: 'translateX(-50%)', width: 2, height: 14, background: '#283c50', borderRadius: 1 }} />
+                </div>
+            </div>
+            <div className="d-flex justify-content-between fs-10 text-muted mt-1">
+                <span>90/60</span><span>120/80</span><span>140/90</span>
+            </div>
+        </div>
+    )
+}
+
+const ClickableCard = ({ to, children }) => {
+    const navigate = useNavigate()
+    return (
+        <div
+            onClick={() => navigate(to)}
+            style={{ cursor: 'pointer' }}
+            className="h-100"
+        >
+            {children}
+        </div>
+    )
+}
+
 const TimexDashboard = () => (
     <>
         <PageHeader />
@@ -40,54 +95,70 @@ const TimexDashboard = () => (
 
                 {/* Row 1: 4 metric cards */}
                 <div className="col-xxl-3 col-xl-3 col-md-6">
-                    <TimexMetricCard
-                        label="Heart Rate" value="82" unit="bpm"
-                        change="Normal range" changeDir="up" color="red"
-                        progress={55} minLabel="60 bpm" goalLabel="Max 120 bpm"
-                        icon={<FiHeart size={16} />}
-                    />
+                    <ClickableCard to="/health/heart-rate">
+                        <TimexMetricCard
+                            label="Heart Rate" value="82" unit="bpm"
+                            change="Normal range" changeDir="up" color="red"
+                            progress={55} minLabel="60 bpm" goalLabel="Max 120 bpm"
+                            icon={<FiHeart size={16} />}
+                        />
+                    </ClickableCard>
                 </div>
                 <div className="col-xxl-3 col-xl-3 col-md-6">
-                    <TimexMetricCard
-                        label="Steps Today" value="6,521" unit="steps"
-                        change="65% of goal" changeDir="up" color="green"
-                        progress={65} minLabel="0" goalLabel="Goal: 10,000"
-                        icon={<FiActivity size={16} />}
-                    />
+                    <ClickableCard to="/health/steps">
+                        <TimexMetricCard
+                            label="Steps Today" value="6,521" unit="steps"
+                            change="65% of goal" changeDir="up" color="green"
+                            progress={65} minLabel="0" goalLabel="Goal: 10,000"
+                            icon={<FiActivity size={16} />}
+                        />
+                    </ClickableCard>
                 </div>
                 <div className="col-xxl-3 col-xl-3 col-md-6">
-                    <TimexMetricCard
-                        label="Last Night" value="6:30" unit="hrs"
-                        change="Below ideal (8h)" changeDir="down" color="purple"
-                        icon={<FiMoon size={16} />}
-                    >
-                        <SleepMiniBar />
-                    </TimexMetricCard>
+                    <ClickableCard to="/health/sleep">
+                        <TimexMetricCard
+                            label="Last Night" value="6:30" unit="hrs"
+                            change="Below ideal (8h)" changeDir="down" color="purple"
+                            icon={<FiMoon size={16} />}
+                        >
+                            <SleepMiniBar />
+                        </TimexMetricCard>
+                    </ClickableCard>
                 </div>
                 <div className="col-xxl-3 col-xl-3 col-md-6">
-                    <TimexMetricCard
-                        label="Stress Level" value="30" unit="/ 100"
-                        change="Relaxed" changeDir="up" color="amber"
-                        icon={<FiZap size={16} />}
-                    >
-                        <StressGradientBar />
-                    </TimexMetricCard>
+                    <ClickableCard to="/health/stress">
+                        <TimexMetricCard
+                            label="Stress Level" value="30" unit="/ 100"
+                            change="Relaxed" changeDir="up" color="amber"
+                            icon={<FiZap size={16} />}
+                        >
+                            <StressGradientBar />
+                        </TimexMetricCard>
+                    </ClickableCard>
                 </div>
 
                 {/* Row 2: Blood Oxygen + Blood Pressure */}
                 <div className="col-xxl-6 col-md-6">
-                    <TimexMetricCard
-                        label="Blood Oxygen" value="75" unit="%"
-                        color="cyan" icon={<FiDroplet size={16} />}
-                        timestamp="11:20 AM"
-                    />
+                    <ClickableCard to="/health/blood-oxygen">
+                        <TimexMetricCard
+                            label="Blood Oxygen" value="98" unit="%"
+                            color="cyan" icon={<FiDroplet size={16} />}
+                            timestamp="11:20 AM"
+                        >
+                            <BloodOxygenBar value={98} />
+                        </TimexMetricCard>
+                    </ClickableCard>
                 </div>
                 <div className="col-xxl-6 col-md-6">
-                    <TimexMetricCard
-                        label="Blood Pressure" value="121/79" unit="mmHg"
-                        color="purple" icon={<FiActivity size={16} />}
-                        timestamp="Jan 12"
-                    />
+                    <ClickableCard to="/health/blood-pressure">
+                        <TimexMetricCard
+                            label="Blood Pressure" value="121/79" unit="mmHg"
+                            color="purple" icon={<FiActivity size={16} />}
+                            timestamp="Jan 12"
+                        >
+                            <BloodPressureBar value="121/79" />
+                        </TimexMetricCard>
+                    </ClickableCard>
                 </div>
 
                 {/* Row 3: HR chart + Sleep */}
@@ -102,7 +173,7 @@ const TimexDashboard = () => (
                             </div>
                         </div>
                         <div className="card-body d-flex flex-column pt-2">
-                            <div style={{ flex: 1, minHeight: 200 }}>
+                            <div style={{ flex: 1, minHeight: 200, height: '200px' }}>
                                 <HeartRateChart />
                             </div>
                         </div>
