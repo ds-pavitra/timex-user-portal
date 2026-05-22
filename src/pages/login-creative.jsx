@@ -1,7 +1,41 @@
-import React from 'react'
-import LoginForm from '../components/authentication/LoginForm'
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { BASE_URL } from '../api/config'
+import { showSuccessToast, showErrorToast } from '../utils/toast'
 
 const LoginCreative = () => {
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [loading, setLoading] = useState(false)
+    const navigate = useNavigate()
+
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+        setLoading(true)
+        try {
+            const response = await fetch(`${BASE_URL}v2/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
+            })
+            const data = await response.json()
+            if (response.ok && data.status === 'success') {
+                sessionStorage.setItem('access_token', data.data.tokens.access_token)
+                sessionStorage.setItem('refresh_token', data.data.tokens.refresh_token)
+                sessionStorage.setItem('user', JSON.stringify(data.data.user))
+                sessionStorage.setItem('profile', JSON.stringify(data.data.profile))
+                showSuccessToast(data.message || 'Login successful')
+                navigate('/')
+            } else {
+                showErrorToast(data.message || 'Login failed. Please check your credentials.')
+            }
+        } catch {
+            showErrorToast('Network error. Please try again.')
+        } finally {
+            setLoading(false)
+        }
+    }
+
     return (
         <main className="auth-creative-wrapper">
             <div className="auth-creative-inner">
@@ -13,7 +47,40 @@ const LoginCreative = () => {
                                     <img src="/images/logo-abbr.png" alt="img" className="img-fluid" />
                                 </div>
                                 <div className="creative-card-body card-body p-sm-5">
-                                    <LoginForm registerPath={"#"} resetPath={"/authentication/reset/creative"} />
+                                    <h2 className="fs-20 fw-bolder mb-4">Login</h2>
+                                    <h4 className="fs-13 fw-bold mb-2">Login to your account</h4>
+                                    <p className="fs-12 fw-medium text-muted">Welcome back! Please enter your credentials to continue.</p>
+                                    <form className="w-100 mt-4 pt-2" onSubmit={handleSubmit}>
+                                        <div className="mb-4">
+                                            <input
+                                                type="email"
+                                                className="form-control"
+                                                placeholder="Email Address"
+                                                value={email}
+                                                onChange={(e) => setEmail(e.target.value)}
+                                                required
+                                            />
+                                        </div>
+                                        <div className="mb-3">
+                                            <input
+                                                type="password"
+                                                className="form-control"
+                                                placeholder="Password"
+                                                value={password}
+                                                onChange={(e) => setPassword(e.target.value)}
+                                                required
+                                            />
+                                        </div>
+                                        <div className="mt-5">
+                                            <button
+                                                type="submit"
+                                                className="btn btn-lg btn-primary w-100"
+                                                disabled={loading}
+                                            >
+                                                {loading ? 'Logging in...' : 'Login'}
+                                            </button>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
                             <div className="col-lg-6 bg-primary order-0 order-lg-1">
@@ -26,7 +93,6 @@ const LoginCreative = () => {
                 </div>
             </div>
         </main>
-
     )
 }
 
