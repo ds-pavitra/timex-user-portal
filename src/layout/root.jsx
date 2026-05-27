@@ -21,8 +21,8 @@ const RootLayout = () => {
         <>
             <Header />
             <NavigationManu />
-            <main className="nxl-container">
-                <div className="nxl-content">
+            <main className="nxl-container" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+                <div className="nxl-content" style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                     <Outlet />
                 </div>
             </main>

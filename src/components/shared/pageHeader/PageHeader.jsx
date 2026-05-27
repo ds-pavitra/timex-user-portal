@@ -5,14 +5,24 @@ import { FiAlignRight, FiArrowLeft } from 'react-icons/fi'
 const PageHeader = ({ children }) => {
     const [openSidebar, setOpenSidebar] = useState(false)
     const pathName = useLocation().pathname
+    const PAGE_LABELS = {
+        dashboards: 'Dashboard',
+        activity: 'Daily Activity',
+        workouts: 'Workouts',
+        profile: 'My Profile',
+        health: 'Health',
+    }
+
     let folderName = ""
     let fileName = ""
     if (pathName === "/") {
         folderName = "Dashboard"
         fileName = "Dashboard"
     } else {
-        folderName = pathName.split("/")[1]
-        fileName = pathName.split("/")[2]
+        const segments = pathName.split("/")
+        const rawFolder = segments[1]
+        folderName = PAGE_LABELS[rawFolder] || rawFolder
+        fileName = segments[2]
     }
     return (
         <div className="page-header">

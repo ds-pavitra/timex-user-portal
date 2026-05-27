@@ -26,9 +26,9 @@ export const menuList = [
     {
         id: 3,
         name: "settings",
-        label: "Settings",
-        path: "/settings",
-        icon: 'feather-settings',
+        label: "My Profile",
+        path: "/profile",
+        icon: 'feather-user',
         dropdownMenu: []
     }
 ]

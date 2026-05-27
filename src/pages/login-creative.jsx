@@ -1,38 +1,24 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { BASE_URL } from '../api/config'
+import { useDispatch, useSelector } from 'react-redux'
+import { loginUser } from '@/store/slices/authSlice'
 import { showSuccessToast, showErrorToast } from '../utils/toast'
 
 const LoginCreative = () => {
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
+    const { loading } = useSelector((state) => state.auth)
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
-    const [loading, setLoading] = useState(false)
-    const navigate = useNavigate()
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-        setLoading(true)
-        try {
-            const response = await fetch(`${BASE_URL}v2/auth/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
-            })
-            const data = await response.json()
-            if (response.ok && data.status === 'success') {
-                sessionStorage.setItem('access_token', data.data.tokens.access_token)
-                sessionStorage.setItem('refresh_token', data.data.tokens.refresh_token)
-                sessionStorage.setItem('user', JSON.stringify(data.data.user))
-                sessionStorage.setItem('profile', JSON.stringify(data.data.profile))
-                showSuccessToast(data.message || 'Login successful')
-                navigate('/')
-            } else {
-                showErrorToast(data.message || 'Login failed. Please check your credentials.')
-            }
-        } catch {
-            showErrorToast('Network error. Please try again.')
-        } finally {
-            setLoading(false)
+        const result = await dispatch(loginUser({ email, password }))
+        if (loginUser.fulfilled.match(result)) {
+            showSuccessToast(result.payload.message || 'Login successful')
+            navigate('/')
+        } else {
+            showErrorToast(result.payload || 'Login failed. Please check your credentials.')
         }
     }
 

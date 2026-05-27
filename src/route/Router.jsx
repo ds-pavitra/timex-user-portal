@@ -25,7 +25,7 @@ export const router = createBrowserRouter([
             { path: "/activity",            element: <TimexActivity /> },
             { path: "/workouts",            element: <TimexWorkouts /> },
             { path: "/workouts/view",       element: <TimexWorkoutDetail /> },
-            { path: "/settings",            element: <TimexSettings /> },
+            { path: "/profile",             element: <TimexSettings /> },
             { path: "/health/heart-rate",   element: <TimexHeartRateDetail /> },
             { path: "/health/blood-oxygen", element: <TimexBloodOxygenDetail /> },
             { path: "/health/blood-pressure", element: <TimexBloodPressureDetail /> },

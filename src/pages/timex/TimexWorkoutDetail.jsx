@@ -7,19 +7,7 @@ import {
 import ReactApexChart from 'react-apexcharts'
 import Footer from '@/components/shared/Footer'
 
-/* ── stat slot definitions ─────────────────────────────────────────── */
-const STAT_DEFS = {
-    time:      { label: 'Duration',    value: '1:00',  unit: 'hr',     icon: <FiClock size={14} />,       bg: 'bg-soft-info text-info' },
-    steps:     { label: 'Total Steps', value: '2,340', unit: 'steps',  icon: <FiActivity size={14} />,    bg: 'bg-soft-success text-success' },
-    calories:  { label: 'Calories',    value: '312',   unit: 'kcal',   icon: <FiZap size={14} />,         bg: 'bg-soft-danger text-danger' },
-    distance:  { label: 'Distance',    value: '2.4',   unit: 'km',     icon: <FiNavigation size={14} />,  bg: 'bg-soft-primary text-primary' },
-    avg_pace:  { label: 'AVG Pace',    value: '5:30',  unit: 'min/km', icon: <FiTrendingUp size={14} />,  bg: 'bg-soft-warning text-warning' },
-    avg_speed: { label: 'AVG Speed',   value: '10.9',  unit: 'km/h',   icon: <FiWind size={14} />,        bg: 'bg-soft-success text-success' },
-    cadence:   { label: 'Cadence',     value: '72',    unit: 'spm',    icon: <FiRefreshCw size={14} />,   bg: 'bg-soft-info text-info' },
-    laps:      { label: 'Laps',        value: '3',     unit: 'laps',   icon: <FiLayers size={14} />,      bg: 'bg-soft-primary text-primary' },
-}
-
-/* ── per-workout stat keys (heart rate + zones always shown separately) */
+/* ── per-workout stat keys ─────────────────────────────────────────── */
 const WORKOUT_STATS = {
     'Yoga':           ['time', 'calories'],
     'Walking':        ['time', 'steps', 'calories', 'distance'],
@@ -44,34 +32,47 @@ const WORKOUT_STATS = {
     'Running':        ['time', 'steps', 'calories', 'distance'],
 }
 
-/* ── HR zones ─────────────────────────────────────────────────────── */
-const HR_ZONES = [
-    { label: 'Low',    color: '#02a0e4', pct: 85, time: '00:50:00' },
-    { label: 'Normal', color: '#e49e3d', pct: 15, time: '00:10:00' },
-    { label: 'Modest', color: '#25b865', pct: 0,  time: '00:00:00' },
-    { label: 'High',   color: '#e47b3d', pct: 0,  time: '00:00:00' },
-    { label: 'Max',    color: '#d13b4c', pct: 0,  time: '00:00:00' },
-]
-
-/* ── chart options ─────────────────────────────────────────────────── */
-const chartOptions = {
-    chart: { type: 'area', background: 'transparent', toolbar: { show: false } },
-    colors: ['#d13b4c'],
-    stroke: { width: 2, curve: 'smooth' },
-    fill: { type: 'gradient', gradient: { opacityFrom: 0.15, opacityTo: 0, stops: [0, 100] } },
-    markers: { size: 0 },
-    xaxis: {
-        categories: ['09:00', '09:15', '09:30', '09:45', '10:00'],
-        axisBorder: { show: false }, axisTicks: { show: false },
-        labels: { style: { colors: '#91a1b6', fontSize: '10px' } }
-    },
-    yaxis: { min: 60, max: 140, labels: { style: { colors: '#91a1b6', fontSize: '10px' } } },
-    grid: { borderColor: 'rgba(0,0,0,0.08)', strokeDashArray: 3, padding: { left: 4, right: 4 } },
-    tooltip: { theme: 'light', style: { fontSize: '11px' } },
-    dataLabels: { enabled: false },
-    legend: { show: false },
+/* ── helpers ───────────────────────────────────────────────────────── */
+const formatDuration = (seconds) => {
+    if (!seconds) return '—'
+    const totalMins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    if (totalMins >= 60) {
+        const hrs = Math.floor(totalMins / 60)
+        const mins = totalMins % 60
+        return mins > 0 ? `${hrs}h ${mins}m` : `${hrs}`
+    }
+    return secs > 0 ? `${totalMins}:${secs.toString().padStart(2, '0')}` : `${totalMins}`
 }
-const chartSeries = [{ name: 'BPM', data: [118, 105, 95, 100, 110, 90, 85, 100, 115, 120] }]
+
+const formatDurationUnit = (seconds) => {
+    if (!seconds) return 'min'
+    return Math.floor(seconds / 3600) >= 1 ? 'hr' : 'min'
+}
+
+const formatPace = (pace) => {
+    if (!pace) return '—'
+    const mins = Math.floor(pace)
+    const secs = Math.round((pace - mins) * 60)
+    return `${mins}:${secs.toString().padStart(2, '0')}`
+}
+
+const formatDistance = (meters, unit = 'km') => {
+    if (!meters) return '—'
+    return unit === 'mi'
+        ? (parseFloat(meters) / 1609.34).toFixed(1)
+        : (parseFloat(meters) / 1000).toFixed(1)
+}
+
+const generateHRLabels = (startTime, count, durationSeconds) => {
+    if (!startTime || !count) return []
+    const start = new Date(startTime)
+    const intervalMs = (durationSeconds / count) * 1000
+    return Array.from({ length: count }, (_, i) => {
+        const t = new Date(start.getTime() + i * intervalMs)
+        return t.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    })
+}
 
 /* ── sub-components ───────────────────────────────────────────────── */
 const StatCard = ({ label, value, unit, icon, bg }) => (
@@ -96,10 +97,133 @@ const TimexWorkoutDetail = () => {
     const navigate = useNavigate()
     const { state } = useLocation()
 
-    const type = state?.type || 'GPS Walk'
-    const meta = state?.meta || 'Today at 8:00 AM'
+    const workout = state?.workout
+    const type = workout?.workout_type_name || state?.type || 'Walking'
+    const meta = state?.meta || ''
 
-    const statKeys  = WORKOUT_STATS[type] ?? ['time', 'calories']
+    const hrArray = workout?.heart_rate ?? []
+    const avgHR = hrArray.length
+        ? Math.round(hrArray.reduce((a, b) => a + b, 0) / hrArray.length)
+        : null
+    const minHR = hrArray.length ? Math.min(...hrArray) : null
+    const maxHR = hrArray.length ? Math.max(...hrArray) : null
+
+    const distanceValue = formatDistance(workout?.distance_meters, workout?.distance_unit)
+    const distanceUnit = workout?.distance_unit || 'km'
+    const pace = workout?.avg_pace || workout?.pace
+    const cadence = workout?.cadence || workout?.metadata?.avg_cadence
+
+    const STAT_DEFS = {
+        time: {
+            label: 'Duration',
+            value: formatDuration(workout?.duration_seconds),
+            unit: formatDurationUnit(workout?.duration_seconds),
+            icon: <FiClock size={14} />,
+            bg: 'bg-soft-info text-info',
+        },
+        steps: {
+            label: 'Total Steps',
+            value: workout?.steps ? workout.steps.toLocaleString() : '—',
+            unit: 'steps',
+            icon: <FiActivity size={14} />,
+            bg: 'bg-soft-success text-success',
+        },
+        calories: {
+            label: 'Calories',
+            value: workout?.calories ? Math.round(parseFloat(workout.calories)).toString() : '—',
+            unit: 'kcal',
+            icon: <FiZap size={14} />,
+            bg: 'bg-soft-danger text-danger',
+        },
+        distance: {
+            label: 'Distance',
+            value: distanceValue,
+            unit: distanceUnit,
+            icon: <FiNavigation size={14} />,
+            bg: 'bg-soft-primary text-primary',
+        },
+        avg_pace: {
+            label: 'AVG Pace',
+            value: formatPace(pace),
+            unit: 'min/km',
+            icon: <FiTrendingUp size={14} />,
+            bg: 'bg-soft-warning text-warning',
+        },
+        avg_speed: {
+            label: 'AVG Speed',
+            value: workout?.avg_speed ? parseFloat(workout.avg_speed).toFixed(1) : '—',
+            unit: 'km/h',
+            icon: <FiWind size={14} />,
+            bg: 'bg-soft-success text-success',
+        },
+        cadence: {
+            label: 'Cadence',
+            value: cadence ? cadence.toString() : '—',
+            unit: 'spm',
+            icon: <FiRefreshCw size={14} />,
+            bg: 'bg-soft-info text-info',
+        },
+        laps: {
+            label: 'Laps',
+            value: workout?.laps ? workout.laps.toString() : '—',
+            unit: 'laps',
+            icon: <FiLayers size={14} />,
+            bg: 'bg-soft-primary text-primary',
+        },
+    }
+
+    const statKeys = WORKOUT_STATS[type] ?? ['time', 'calories']
+
+    const hrLabels = generateHRLabels(workout?.start_time, hrArray.length, workout?.duration_seconds)
+    const yMin = hrArray.length ? Math.max(0, Math.min(...hrArray) - 10) : 50
+    const yMax = hrArray.length ? Math.max(...hrArray) + 10 : 150
+
+    const chartOptions = {
+        chart: { type: 'area', background: 'transparent', toolbar: { show: false } },
+        colors: ['#d13b4c'],
+        stroke: { width: 2, curve: 'smooth' },
+        fill: { type: 'gradient', gradient: { opacityFrom: 0.15, opacityTo: 0, stops: [0, 100] } },
+        markers: { size: 4 },
+        xaxis: {
+            categories: hrLabels,
+            axisBorder: { show: false },
+            axisTicks: { show: false },
+            labels: { style: { colors: '#91a1b6', fontSize: '10px' } },
+        },
+        yaxis: {
+            min: yMin,
+            max: yMax,
+            labels: { style: { colors: '#91a1b6', fontSize: '10px' } },
+        },
+        grid: { borderColor: 'rgba(0,0,0,0.08)', strokeDashArray: 3, padding: { left: 4, right: 4 } },
+        tooltip: { theme: 'light', style: { fontSize: '11px' }, y: { formatter: (v) => `${v} bpm` } },
+        dataLabels: { enabled: false },
+        legend: { show: false },
+    }
+    const chartSeries = [{ name: 'BPM', data: hrArray }]
+
+    /* HR zones: distribute based on actual HR range */
+    const buildHRZones = () => {
+        if (!hrArray.length || !maxHR) return []
+        const zones = [
+            { label: 'Low',    color: '#02a0e4', max: maxHR * 0.60 },
+            { label: 'Normal', color: '#e49e3d', max: maxHR * 0.70 },
+            { label: 'Modest', color: '#25b865', max: maxHR * 0.80 },
+            { label: 'High',   color: '#e47b3d', max: maxHR * 0.90 },
+            { label: 'Max',    color: '#d13b4c', max: maxHR },
+        ]
+        const counts = zones.map(z =>
+            hrArray.filter(v => v <= z.max).length
+        )
+        const total = hrArray.length
+        return zones.map((z, i) => ({
+            ...z,
+            pct: Math.round((counts[i] / total) * 100),
+            time: new Date(Math.round((counts[i] / total) * (workout?.duration_seconds ?? 0)) * 1000)
+                .toISOString().substring(11, 19),
+        }))
+    }
+    const hrZones = buildHRZones()
 
     return (
         <>
@@ -123,71 +247,72 @@ const TimexWorkoutDetail = () => {
             <div className="main-content">
                 <div className="row g-3">
 
-                    {/* Stat cards — only what this workout needs */}
                     {statKeys.map(key => {
                         const s = STAT_DEFS[key]
                         return s ? <StatCard key={key} {...s} /> : null
                     })}
 
-                    {/* Heart Rate chart */}
-                    <div className="col-12">
-                        <div className="card">
-                            <div className="card-header">
-                                <h5 className="card-title">Heart Rate</h5>
-                                <div className="avatar-text avatar-sm bg-soft-danger text-danger">
-                                    <FiHeart size={14} />
-                                </div>
-                            </div>
-                            <div className="card-body pt-0">
-                                <ReactApexChart
-                                    type="area"
-                                    options={chartOptions}
-                                    series={chartSeries}
-                                    height={220}
-                                />
-                                <div className="row g-2 mt-1 pt-3 border-top align-items-center">
-                                    <div className="col-12 col-md-6 d-flex align-items-center justify-content-between justify-content-md-start gap-3">
-                                        <span className="fs-13 text-muted">Avg. Heart Rate</span>
-                                        <span className="px-3 py-1 rounded bg-soft-secondary text-dark fw-semibold fs-14">
-                                            75 <small className="fs-11 fw-normal text-muted">Bpm</small>
-                                        </span>
+                    {hrArray.length > 0 && (
+                        <div className="col-12">
+                            <div className="card">
+                                <div className="card-header">
+                                    <h5 className="card-title">Heart Rate</h5>
+                                    <div className="avatar-text avatar-sm bg-soft-danger text-danger">
+                                        <FiHeart size={14} />
                                     </div>
-                                    <div className="col-12 col-md-6 d-flex align-items-center justify-content-between justify-content-md-start gap-3">
-                                        <span className="fs-13 text-muted">Range</span>
-                                        <div className="d-flex gap-2">
+                                </div>
+                                <div className="card-body pt-0">
+                                    <ReactApexChart
+                                        type="area"
+                                        options={chartOptions}
+                                        series={chartSeries}
+                                        height={220}
+                                    />
+                                    <div className="row g-2 mt-1 pt-3 border-top align-items-center">
+                                        <div className="col-12 col-md-6 d-flex align-items-center justify-content-between justify-content-md-start gap-3">
+                                            <span className="fs-13 text-muted">Avg. Heart Rate</span>
                                             <span className="px-3 py-1 rounded bg-soft-secondary text-dark fw-semibold fs-14">
-                                                80 <small className="fs-11 fw-normal text-muted">Min</small>
+                                                {avgHR} <small className="fs-11 fw-normal text-muted">Bpm</small>
                                             </span>
-                                            <span className="px-3 py-1 rounded bg-soft-secondary text-dark fw-semibold fs-14">
-                                                100 <small className="fs-11 fw-normal text-muted">Max</small>
-                                            </span>
+                                        </div>
+                                        <div className="col-12 col-md-6 d-flex align-items-center justify-content-between justify-content-md-start gap-3">
+                                            <span className="fs-13 text-muted">Range</span>
+                                            <div className="d-flex gap-2">
+                                                <span className="px-3 py-1 rounded bg-soft-secondary text-dark fw-semibold fs-14">
+                                                    {minHR} <small className="fs-11 fw-normal text-muted">Min</small>
+                                                </span>
+                                                <span className="px-3 py-1 rounded bg-soft-secondary text-dark fw-semibold fs-14">
+                                                    {maxHR} <small className="fs-11 fw-normal text-muted">Max</small>
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    )}
 
-                    {/* Heart Rate Zones */}
-                    <div className="col-12">
-                        <div className="card mb-0">
-                            <div className="card-header">
-                                <h5 className="card-title">Heart Rate Zones</h5>
-                            </div>
-                            <div className="card-body">
-                                {HR_ZONES.map(z => (
-                                    <div key={z.label} className="d-flex align-items-center gap-3 mb-3">
-                                        <span className="fs-13 fw-semibold" style={{ color: z.color, minWidth: 68 }}>{z.label}</span>
-                                        <div className="progress flex-grow-1" style={{ height: 6 }}>
-                                            <div className="progress-bar" style={{ width: `${z.pct || 1}%`, background: z.color }} />
+                    {hrZones.length > 0 && (
+                        <div className="col-12">
+                            <div className="card mb-0">
+                                <div className="card-header">
+                                    <h5 className="card-title">Heart Rate Zones</h5>
+                                </div>
+                                <div className="card-body">
+                                    {hrZones.map(z => (
+                                        <div key={z.label} className="d-flex align-items-center gap-3 mb-3">
+                                            <span className="fs-13 fw-semibold" style={{ color: z.color, minWidth: 68 }}>{z.label}</span>
+                                            <div className="progress flex-grow-1" style={{ height: 6 }}>
+                                                <div className="progress-bar" style={{ width: `${z.pct || 1}%`, background: z.color }} />
+                                            </div>
+                                            <span className="fs-12 text-muted fw-medium" style={{ minWidth: 36, textAlign: 'right' }}>{z.pct}%</span>
+                                            <span className="fs-12 text-muted" style={{ fontFamily: 'monospace', minWidth: 64 }}>{z.time}</span>
                                         </div>
-                                        <span className="fs-12 text-muted fw-medium" style={{ minWidth: 36, textAlign: 'right' }}>{z.pct}%</span>
-                                        <span className="fs-12 text-muted" style={{ fontFamily: 'monospace', minWidth: 64 }}>{z.time}</span>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
 
                 </div>
             </div>

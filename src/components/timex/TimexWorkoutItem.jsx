@@ -1,11 +1,11 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
-const TimexWorkoutItem = ({ icon, iconBg, iconBorder, type, gps, meta, stats }) => {
+const TimexWorkoutItem = ({ icon, iconBg, iconBorder, type, gps, meta, stats, workout }) => {
     const navigate = useNavigate()
 
     const handleClick = () => {
-        navigate('/workouts/view', { state: { type, gps, meta, iconBg, iconBorder } })
+        navigate('/workouts/view', { state: { type, gps, meta, iconBg, iconBorder, workout } })
     }
 
     return (
