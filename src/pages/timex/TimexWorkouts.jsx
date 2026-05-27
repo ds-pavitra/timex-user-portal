@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { FiFilter, FiMapPin } from 'react-icons/fi'
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
+import 'react-loading-skeleton/dist/skeleton.css'
 import TimexWorkoutItem from '@/components/timex/TimexWorkoutItem'
 import PageHeader from '@/components/shared/pageHeader/PageHeader'
 import Footer from '@/components/shared/Footer'
@@ -50,9 +52,31 @@ const TimexWorkouts = () => {
                         </div>
 
                         {loading && (
-                            <div className="text-center py-5">
-                                <div className="spinner-border spinner-border-sm text-primary" />
-                            </div>
+                            <SkeletonTheme baseColor="#f0f2f5" highlightColor="#e2e5ea">
+                                <Skeleton height={11} width={120} className="mb-3" />
+                                {[1, 2, 3, 4, 5].map(i => (
+                                    <div key={i} className="card mb-2">
+                                        <div className="card-body py-3">
+                                            <div className="d-flex align-items-center gap-3">
+                                                <Skeleton width={44} height={44} borderRadius={8} />
+                                                <div className="flex-grow-1">
+                                                    <Skeleton height={13} width={110} className="mb-1" />
+                                                    <Skeleton height={11} width={160} />
+                                                </div>
+                                                <div className="d-flex gap-4 d-none d-md-flex">
+                                                    {[1, 2, 3].map(j => (
+                                                        <div key={j} className="text-center">
+                                                            <Skeleton height={14} width={48} className="mb-1" />
+                                                            <Skeleton height={9} width={40} />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <Skeleton width={10} height={18} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </SkeletonTheme>
                         )}
 
                         {error && (

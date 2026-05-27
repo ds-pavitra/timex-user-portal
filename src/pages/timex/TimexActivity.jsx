@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { FiActivity, FiNavigation, FiZap, FiClock } from 'react-icons/fi'
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
+import 'react-loading-skeleton/dist/skeleton.css'
 import TimexMetricCard from '@/components/timex/TimexMetricCard'
 import HourlyActivityChart from '@/components/timex/HourlyActivityChart'
 import WeeklyStepsChart from '@/components/timex/WeeklyStepsChart'
@@ -7,6 +9,89 @@ import PageHeader from '@/components/shared/pageHeader/PageHeader'
 import Footer from '@/components/shared/Footer'
 import apiClient from '@/api/apiClient'
 import { API_ENDPOINTS } from '@/api/config'
+
+const ActivitySkeleton = () => (
+    <SkeletonTheme baseColor="#f0f2f5" highlightColor="#e2e5ea">
+        <div className="row g-3">
+            {/* 4 metric cards */}
+            {[1, 2, 3, 4].map(i => (
+                <div key={i} className="col-xxl-3 col-xl-3 col-md-6">
+                    <div className="card stretch stretch-full">
+                        <div className="card-body">
+                            <div className="d-flex justify-content-between mb-3">
+                                <Skeleton height={10} width={70} />
+                                <Skeleton circle width={20} height={20} />
+                            </div>
+                            <Skeleton height={32} width={110} className="mb-1" />
+                            <Skeleton height={10} width={90} className="mb-3" />
+                            <Skeleton height={4} borderRadius={2} />
+                            <div className="d-flex justify-content-between mt-1">
+                                <Skeleton height={9} width={20} />
+                                <Skeleton height={9} width={70} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ))}
+
+            {/* Hourly chart */}
+            <div className="col-12">
+                <div className="card">
+                    <div className="card-header">
+                        <Skeleton height={16} width={200} />
+                        <Skeleton height={20} width={100} borderRadius={20} />
+                    </div>
+                    <div className="card-body pt-2">
+                        <Skeleton height={200} borderRadius={8} />
+                    </div>
+                </div>
+            </div>
+
+            {/* Activity table */}
+            <div className="col-xxl-6 col-md-12">
+                <div className="card stretch stretch-full">
+                    <div className="card-header">
+                        <Skeleton height={16} width={160} />
+                    </div>
+                    <div className="card-body p-0">
+                        <div className="px-4 py-2 d-flex gap-4 border-bottom">
+                            {[80, 60, 80, 80].map((w, i) => <Skeleton key={i} height={10} width={w} />)}
+                        </div>
+                        {[1, 2, 3, 4, 5].map(i => (
+                            <div key={i} className="px-4 py-3 d-flex align-items-center gap-4 border-bottom">
+                                <Skeleton circle width={8} height={8} />
+                                <Skeleton height={12} width={55} />
+                                <Skeleton height={12} width={50} />
+                                <Skeleton height={12} width={65} />
+                                <Skeleton height={12} width={55} />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            {/* Weekly chart */}
+            <div className="col-xxl-6 col-md-12">
+                <div className="card stretch stretch-full">
+                    <div className="card-header">
+                        <Skeleton height={16} width={180} />
+                    </div>
+                    <div className="card-body pt-2">
+                        <Skeleton height={180} borderRadius={8} />
+                        <div className="row g-3 mt-1 pt-3 border-top">
+                            {[1, 2, 3].map(i => (
+                                <div key={i} className="col-4 text-center">
+                                    <Skeleton height={20} width={80} className="mb-1" style={{ display: 'block', margin: '0 auto 4px' }} />
+                                    <Skeleton height={9} width={60} style={{ display: 'block', margin: '0 auto' }} />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </SkeletonTheme>
+)
 
 const TODAY = new Date().toISOString().slice(0, 10)
 
@@ -74,10 +159,8 @@ const TimexActivity = () => {
         return (
             <>
                 <PageHeader />
-                <div className="main-content d-flex align-items-center justify-content-center" style={{ minHeight: 300 }}>
-                    <div className="spinner-border text-info" role="status">
-                        <span className="visually-hidden">Loading...</span>
-                    </div>
+                <div className="main-content">
+                    <ActivitySkeleton />
                 </div>
                 <Footer />
             </>

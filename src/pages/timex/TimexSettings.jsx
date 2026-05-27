@@ -4,10 +4,97 @@ import {
     FiTarget, FiActivity, FiZap, FiTrendingUp, FiMail,
     FiGlobe, FiCheckCircle,
 } from 'react-icons/fi'
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
+import 'react-loading-skeleton/dist/skeleton.css'
 import PageHeader from '@/components/shared/pageHeader/PageHeader'
 import Footer from '@/components/shared/Footer'
 import apiClient from '@/api/apiClient'
 import { API_ENDPOINTS } from '@/api/config'
+
+/* ─── Profile Skeleton ───────────────────────────────────────────── */
+const ProfileSkeleton = () => (
+    <SkeletonTheme baseColor="#f0f2f5" highlightColor="#e2e5ea">
+        <div className="row g-3">
+            {/* Hero card */}
+            <div className="col-12">
+                <div className="card overflow-hidden mb-0">
+                    <Skeleton height={96} borderRadius={0} />
+                    <div className="card-body" style={{ paddingTop: 0 }}>
+                        <div className="d-flex align-items-end gap-3 flex-wrap" style={{ marginTop: -46 }}>
+                            <Skeleton circle width={92} height={92} style={{ border: '4px solid #fff', flexShrink: 0 }} />
+                            <div style={{ flex: '1 1 200px', paddingBottom: 4 }}>
+                                <Skeleton height={22} width={200} className="mt-3 mb-2" />
+                                <div className="d-flex gap-3">
+                                    <Skeleton height={12} width={160} />
+                                    <Skeleton height={12} width={120} />
+                                </div>
+                            </div>
+                            <div className="d-flex gap-2 pb-1">
+                                {[1, 2, 3, 4].map(i => (
+                                    <Skeleton key={i} height={54} width={82} borderRadius={8} />
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Personal info + Body metrics + Goals */}
+            {[9, 3, 2].map((rows, col) => (
+                <div key={col} className="col-xxl-4 col-md-6">
+                    <div className="card stretch stretch-full mb-0">
+                        <div className="card-header">
+                            <Skeleton height={14} width={120} />
+                        </div>
+                        <div className="card-body">
+                            {Array.from({ length: rows }).map((_, i) => (
+                                <div key={i} className="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                    <div className="d-flex align-items-center gap-2">
+                                        <Skeleton circle width={14} height={14} />
+                                        <Skeleton height={11} width={80} />
+                                    </div>
+                                    <Skeleton height={12} width={100} />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            ))}
+
+            {/* BMI + BMR */}
+            {[1, 2].map(i => (
+                <div key={i} className="col-xxl-6 col-md-12">
+                    <div className="card mb-0">
+                        <div className="card-header">
+                            <Skeleton height={14} width={140} />
+                            <Skeleton height={20} width={60} borderRadius={20} />
+                        </div>
+                        <div className="card-body">
+                            <div className="d-flex align-items-center gap-3 mb-3">
+                                <Skeleton width={60} height={60} borderRadius={12} />
+                                <div>
+                                    <Skeleton height={10} width={130} className="mb-2" />
+                                    <Skeleton height={36} width={100} />
+                                </div>
+                            </div>
+                            <Skeleton height={10} borderRadius={6} />
+                            <div className="d-flex justify-content-between mt-2">
+                                <Skeleton height={9} width={40} />
+                                <Skeleton height={9} width={40} />
+                                <Skeleton height={9} width={55} />
+                                <Skeleton height={9} width={35} />
+                            </div>
+                            <div className="row g-2 mt-2">
+                                <div className="col-6"><Skeleton height={52} borderRadius={6} /></div>
+                                <div className="col-6"><Skeleton height={52} borderRadius={6} /></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    </SkeletonTheme>
+)
 
 /* ─── Goal Ring (SVG donut) ─────────────────────────────────────── */
 const GoalRing = ({ value, unit, label, color }) => {
@@ -182,10 +269,8 @@ const TimexSettings = () => {
         return (
             <>
                 <PageHeader />
-                <div className="main-content d-flex align-items-center justify-content-center" style={{ minHeight: 320 }}>
-                    <div className="spinner-border text-info" role="status">
-                        <span className="visually-hidden">Loading…</span>
-                    </div>
+                <div className="main-content">
+                    <ProfileSkeleton />
                 </div>
                 <Footer />
             </>
