@@ -86,6 +86,18 @@ export const formatDistance = (meters, unit = 'km') => {
     return `${dist} ${unit}`;
 };
 
+export const formatPace = (seconds) => {
+    if (!seconds) return '—';
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${String(secs).padStart(2, '0')}/km`;
+};
+
+export const formatSpeed = (speed) => {
+    if (!speed) return '—';
+    return `${parseFloat(speed).toFixed(1)} km/h`;
+};
+
 export const getAvgHeartRate = (hrArray) => {
     if (!hrArray?.length) return null;
     return Math.round(hrArray.reduce((a, b) => a + b, 0) / hrArray.length);

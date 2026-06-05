@@ -7,7 +7,20 @@ export const fetchWorkouts = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             const data = await apiClient(API_ENDPOINTS.WORKOUTS.LIST);
-            return data.data;
+            const responseData = data?.data;
+            if (Array.isArray(responseData)) {
+                return responseData.map((workout) => ({
+                    ...workout,
+                    isGpsWorkout: workout.isGpsWorkout ?? !!workout.route_points?.length,
+                }));
+            }
+            const workouts = responseData?.workouts ?? [];
+            const gpsWorkouts = responseData?.gps_workouts ?? [];
+            const normalize = (items, isGps) => items.map((workout) => ({
+                ...workout,
+                isGpsWorkout: isGps,
+            }));
+            return [...normalize(workouts, false), ...normalize(gpsWorkouts, true)];
         } catch (error) {
             return rejectWithValue(error.message);
         }

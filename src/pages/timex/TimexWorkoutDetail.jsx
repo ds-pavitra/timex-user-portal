@@ -50,11 +50,11 @@ const formatDurationUnit = (seconds) => {
     return Math.floor(seconds / 3600) >= 1 ? 'hr' : 'min'
 }
 
-const formatPace = (pace) => {
-    if (!pace) return '—'
-    const mins = Math.floor(pace)
-    const secs = Math.round((pace - mins) * 60)
-    return `${mins}:${secs.toString().padStart(2, '0')}`
+const formatPace = (seconds) => {
+    if (!seconds) return '—'
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins}:${String(secs).padStart(2, '0')}`
 }
 
 const formatDistance = (meters, unit = 'km') => {
@@ -172,7 +172,12 @@ const TimexWorkoutDetail = () => {
         },
     }
 
-    const statKeys = WORKOUT_STATS[type] ?? ['time', 'calories']
+    const isGps = state?.gps ?? workout?.isGpsWorkout ?? false
+    const GPS_EXTRA_KEYS = ['laps', 'avg_speed', 'avg_pace', 'cadence']
+    const baseKeys = WORKOUT_STATS[type] ?? ['time', 'calories']
+    const statKeys = isGps
+        ? [...baseKeys, ...GPS_EXTRA_KEYS.filter(k => !baseKeys.includes(k))]
+        : baseKeys
 
     const hrLabels = generateHRLabels(workout?.start_time, hrArray.length, workout?.duration_seconds)
     const yMin = hrArray.length ? Math.max(0, Math.min(...hrArray) - 10) : 50

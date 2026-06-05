@@ -6,7 +6,7 @@ export const API_ENDPOINTS = {
         LOGOUT: 'v2/auth/logout',
     },
     WORKOUTS: {
-        LIST: 'v2/workouts',
+        LIST: 'v2/workouts/combined',
     },
     PROFILE: {
         DEMOGRAPHICS: 'v2/profile/demographics',

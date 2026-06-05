@@ -98,7 +98,7 @@ const TimexWorkouts = () => {
                                             iconBg={config.iconBg}
                                             iconBorder={config.iconBorder}
                                             type={workout.workout_type_name}
-                                            gps={workout.route_points?.length > 0}
+                                            gps={workout.isGpsWorkout ?? workout.route_points?.length > 0}
                                             meta={formatWorkoutMeta(workout.start_time, workout.duration_seconds)}
                                             workout={workout}
                                             stats={[
