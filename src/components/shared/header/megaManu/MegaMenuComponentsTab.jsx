@@ -29,7 +29,7 @@ const MegaMenuComponentsTab = () => {
                 </div>
                 <div className="col-xl-4">
                     <div className="nxl-mega-menu-image">
-                        <img src="/images/banner/1.jpg" alt="" className="img-fluid" />
+                        <img src="./images/banner/1.jpg" alt="" className="img-fluid" />
                     </div>
                     <div className="mt-4">
                         <Link to="mailto:wrapcoders@gmail.com" className="fs-13 fw-bold">View all resources on Timex &rarr;</Link>

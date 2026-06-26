@@ -59,7 +59,7 @@ const ProfileModal = () => {
                     </div>
                 </div>
                 <div className="dropdown-divider"></div>
-                <a href="/profile" className="dropdown-item">
+                <a href="/ui/profile" className="dropdown-item">
                     <i><FiUser /></i>
                     <span>My Profile</span>
                 </a>

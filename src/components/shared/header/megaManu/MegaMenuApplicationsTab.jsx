@@ -34,7 +34,7 @@ const MegaMenuApplicationsTab = () => {
                 </div>
                 <div className="col-lg-6">
                     <div className="nxl-mega-menu-image">
-                        <img src="/images/general/full-avatar.png" alt="" className="img-fluid full-user-avtar" />
+                        <img src="./images/general/full-avatar.png" alt="" className="img-fluid full-user-avtar" />
                     </div>
                 </div>
             </div>

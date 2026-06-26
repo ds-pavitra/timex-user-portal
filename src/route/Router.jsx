@@ -43,4 +43,6 @@ export const router = createBrowserRouter([
             { path: "/authentication/verify/creative",      element: <OtpCreative /> },
         ]
     }
-])
+], {
+    basename: '/ui',
+})

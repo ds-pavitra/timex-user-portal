@@ -142,12 +142,12 @@ const Header = () => {
                     {/* <!--! [Start] nxl-head-mobile-toggler !-->
                     <!--! [Start] nxl-navigation-toggle !--> */}
                     <div className="nxl-navigation-toggle navigation-up-1600">
-                        <a href="#" onClick={(e) => handleNavigationExpendUp(e, "show")} id="menu-mini-button" ref={miniButtonRef} style={{ display: navigationExpend ? "none" : "block" }}>
+                        {/* <a href="#" onClick={(e) => handleNavigationExpendUp(e, "show")} id="menu-mini-button" ref={miniButtonRef} style={{ display: navigationExpend ? "none" : "block" }}>
                             <FiAlignLeft size={24} />
                         </a>
                         <a href="#" onClick={(e) => handleNavigationExpendUp(e, "hide")} id="menu-expend-button" ref={expendButtonRef} style={{ display: navigationExpend ? "block" : "none" }}>
                             <FiArrowRight size={24} />
-                        </a>
+                        </a> */}
                     </div>
                     <div className="nxl-navigation-toggle navigation-down-1600">
                         <a href="#" onClick={(e) => handleNavigationExpendDown(e, "hide")} id="menu-mini-button" ref={miniButtonRef} style={{ display: navigationExpend ? "block" : "none" }}>
@@ -159,11 +159,11 @@ const Header = () => {
                     </div>
                     {/* <!--! [End] nxl-navigation-toggle !-->
                     <!--! [Start] nxl-lavel-mega-menu-toggle !--> */}
-                    <div className="nxl-lavel-mega-menu-toggle d-flex d-lg-none">
+                    {/* <div className="nxl-lavel-mega-menu-toggle d-flex d-lg-none">
                         <a href="#" onClick={(e) => {e.preventDefault(), setOpenMegaMenu(true)}} id="nxl-lavel-mega-menu-open">
                             <FiAlignLeft size={24} />
                         </a>
-                    </div>
+                    </div> */}
                     {/* <!--! [End] nxl-lavel-mega-menu-toggle !-->
                     <!--! [Start] nxl-lavel-mega-menu !--> */}
                     <div className="nxl-drp-link nxl-lavel-mega-menu">

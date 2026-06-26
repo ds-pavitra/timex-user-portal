@@ -17,8 +17,8 @@ const NavigationManu = () => {
                 <div className="m-header">
                     <Link to="/" className="b-brand d-flex justify-content-center align-items-center">
                         {/* <!-- ========   change your logo hear   ============ --> */}
-                        <img src="/images/logo-full.png" alt="logo" className="logo logo-lg" style={{width:'75%'}} />
-                        <img src="/images/logo-abbr.png" alt="logo" className="logo logo-sm" style={{width:'75%'}} />
+                        <img src="./images/logo-full.png" alt="logo" className="logo logo-lg" style={{width:'75%'}} />
+                        <img src="./images/logo-abbr.png" alt="logo" className="logo logo-sm" style={{width:'75%'}} />
                     </Link>
                 </div>
 
